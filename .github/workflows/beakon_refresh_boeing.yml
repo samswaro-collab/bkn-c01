@@ -1,0 +1,33 @@
+name: BEAKON — Boeing Data Refresh
+
+on:
+  schedule:
+    - cron: '0 6 */5 * *'   # Every 5 days at 06:00 UTC
+  workflow_dispatch:          # Allow manual trigger from GitHub Actions UI
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run Boeing data refresh
+        run: python data_refresh_boeing.py
+
+      - name: Commit updated data_boeing.json
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Auto-refresh: Boeing hiring data [skip ci]"
+          file_pattern: data_boeing.json
